@@ -1,0 +1,76 @@
+# Node modules
+node_modules
+
+# Build outputs
+/.cache
+app/build
+app/public/build
+
+# Environment variables
+app/.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Terraform files
+infra/**/.terraform/
+infra/**/.terraform.lock.hcl
+infra/**/terraform.tfstate
+infra/**/terraform.tfstate.backup
+infra/**/.terraform.tfstate.d/
+
+# Miscellaneous
+*.bak
+*.swp
+*.tmp
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# Environment-specific files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Yarn Integrity
+.yarn-integrity
+
+# Parcel-bundler cache
+.cache/
+
+# SASS cache
+.sass-cache/
+
+# Next.js build output
+.next/
+
+# Remix build output
+build/
+
+tfsec
+.actrc
+
+*/copilot-instructions.md
