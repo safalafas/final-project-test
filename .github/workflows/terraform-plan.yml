@@ -1,0 +1,89 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Starting Plan Workflow
+        run: echo "Starting the plan jobs..."
+
+  backend-plan:
+    name: Plan - backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/backend
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
+      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
+
+  network-plan:
+    name: Plan - network
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/network
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
+      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
+
+  aks-plan:
+    name: Plan - aks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aks
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
+      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
+
+  weather-app-plan:
+    name: Plan - weather-app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/weather-app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
+      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY

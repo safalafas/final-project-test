@@ -1,0 +1,84 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Starting Apply Workflow
+        run: echo "Starting the apply jobs..."
+
+  backend-apply:
+    name: Apply - backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/backend
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+      - run: terraform init
+      - run: terraform apply -auto-approve
+
+  network-apply:
+    name: Apply - network
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/network
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+      - run: terraform init
+      - run: terraform apply -auto-approve
+
+  aks-apply:
+    name: Apply - aks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aks
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+      - run: terraform init
+      - run: terraform apply -auto-approve
+
+  weather-app-apply:
+    name: Apply - weather-app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/weather-app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+      - run: terraform init
+      - run: terraform apply -auto-approve

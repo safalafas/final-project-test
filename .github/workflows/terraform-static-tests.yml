@@ -1,0 +1,74 @@
+name: Terraform Static Checks
+
+on:
+  push:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  backend-static:
+    name: Static - backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/backend
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init -backend=false
+      - run: terraform fmt -check -recursive
+      - run: terraform validate
+      - uses: aquasecurity/tfsec-action@v1.0.0
+        with: { soft_fail: false }
+
+  network-static:
+    name: Static - network
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/network
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init -backend=false
+      - run: terraform fmt -check -recursive
+      - run: terraform validate
+      - uses: aquasecurity/tfsec-action@v1.0.0
+        with: { soft_fail: false }
+
+  aks-static:
+    name: Static - aks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aks
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init -backend=false
+      - run: terraform fmt -check -recursive
+      - run: terraform validate
+      - uses: aquasecurity/tfsec-action@v1.0.0
+        with: { soft_fail: false }
+
+  weather-app-static:
+    name: Static - weather-app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/weather-app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with: { terraform_version: 1.5.7 }
+      - run: terraform init -backend=false
+      - run: terraform fmt -check -recursive
+      - run: terraform validate
+      - uses: aquasecurity/tfsec-action@v1.0.0
+        with: { soft_fail: false }
