@@ -1,0 +1,32 @@
+name: Docker Build and Deploy
+
+on:
+  push:
+    paths:
+      - "app/**"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to ACR
+        run: az acr login --name weatherappacr
+      - name: Build and push Docker image
+        run: |
+          docker build -t weatherappacr.azurecr.io/weather-app:latest ./app
+          docker push weatherappacr.azurecr.io/weather-app:latest
+
+  deploy-test:
+    if: github.event.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Test AKS
+        run: kubectl apply -f k8s/test-deployment.yaml
+
+  deploy-prod:
+    if: github.event.pull_request.merged
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Prod AKS
+        run: kubectl apply -f k8s/prod-deployment.yaml

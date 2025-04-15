@@ -6,31 +6,36 @@ on:
       - main
 
 permissions:
+  id-token: write
   contents: read
   pull-requests: write
 
 jobs:
-  start:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Starting Plan Workflow
-        run: echo "Starting the plan jobs..."
-
   backend-plan:
     name: Plan - backend
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/backend
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: true
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
-        with: { terraform_version: 1.5.7 }
+        with:
+          terraform_version: 1.5.7
       - run: terraform init
       - run: terraform validate
+      - name: Run tflint
+        run: tflint
       - run: terraform plan -var="location=canadacentral" -out=tfplan.out
       - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
@@ -40,15 +45,25 @@ jobs:
     defaults:
       run:
         working-directory: infra/network
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: true
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
-        with: { terraform_version: 1.5.7 }
+        with:
+          terraform_version: 1.5.7
       - run: terraform init
       - run: terraform validate
+      - name: Run tflint
+        run: tflint
       - run: terraform plan -var="location=canadacentral" -out=tfplan.out
       - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
@@ -58,15 +73,25 @@ jobs:
     defaults:
       run:
         working-directory: infra/aks
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: true
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
-        with: { terraform_version: 1.5.7 }
+        with:
+          terraform_version: 1.5.7
       - run: terraform init
       - run: terraform validate
+      - name: Run tflint
+        run: tflint
       - run: terraform plan -var="location=canadacentral" -out=tfplan.out
       - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
@@ -76,14 +101,24 @@ jobs:
     defaults:
       run:
         working-directory: infra/weather-app
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: true
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
-        with: { terraform_version: 1.5.7 }
+        with:
+          terraform_version: 1.5.7
       - run: terraform init
       - run: terraform validate
+      - name: Run tflint
+        run: tflint
       - run: terraform plan -var="location=canadacentral" -out=tfplan.out
       - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY

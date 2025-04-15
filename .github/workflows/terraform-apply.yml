@@ -4,30 +4,30 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
-  start:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Starting Apply Workflow
-        run: echo "Starting the apply jobs..."
-
   backend-apply:
     name: Apply - backend
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/backend
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
@@ -36,17 +36,19 @@ jobs:
 
   network-apply:
     name: Apply - network
+    needs: backend-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/network
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
@@ -55,17 +57,19 @@ jobs:
 
   aks-apply:
     name: Apply - aks
+    needs: network-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/aks
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
@@ -74,17 +78,19 @@ jobs:
 
   weather-app-apply:
     name: Apply - weather-app
+    needs: aks-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: infra/weather-app
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
