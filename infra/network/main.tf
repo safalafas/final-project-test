@@ -1,45 +1,45 @@
 provider "azurerm" {
   features {}
   use_cli         = true
-  subscription_id = "947de9ef-e209-4074-8659-a6fd4c329168"
+  subscription_id = var.subscription_id
 }
 
 resource "azurerm_resource_group" "network_rg" {
-  name     = "cst8918-final-project-group-13"
-  location = "Canada Central"
+  name     = var.resource_group_name
+  location = var.location
 }
 
 resource "azurerm_virtual_network" "main_vnet" {
-  name                = "cst8918-vnet"
-  address_space       = ["10.0.0.0/14"]
+  name                = var.vnet_name
+  address_space       = var.vnet_address_space
   location            = azurerm_resource_group.network_rg.location
   resource_group_name = azurerm_resource_group.network_rg.name
 }
 
 resource "azurerm_subnet" "prod" {
-  name                 = "prod-subnet"
+  name                 = var.prod_subnet_name
   resource_group_name  = azurerm_resource_group.network_rg.name
   virtual_network_name = azurerm_virtual_network.main_vnet.name
-  address_prefixes     = ["10.0.0.0/16"]
+  address_prefixes     = var.prod_subnet_address_prefixes
 }
 
 resource "azurerm_subnet" "test" {
-  name                 = "test-subnet"
+  name                 = var.test_subnet_name
   resource_group_name  = azurerm_resource_group.network_rg.name
   virtual_network_name = azurerm_virtual_network.main_vnet.name
-  address_prefixes     = ["10.1.0.0/16"]
+  address_prefixes     = var.test_subnet_address_prefixes
 }
 
 resource "azurerm_subnet" "dev" {
-  name                 = "dev-subnet"
+  name                 = var.dev_subnet_name
   resource_group_name  = azurerm_resource_group.network_rg.name
   virtual_network_name = azurerm_virtual_network.main_vnet.name
-  address_prefixes     = ["10.2.0.0/16"]
+  address_prefixes     = var.dev_subnet_address_prefixes
 }
 
 resource "azurerm_subnet" "admin" {
-  name                 = "admin-subnet"
+  name                 = var.admin_subnet_name
   resource_group_name  = azurerm_resource_group.network_rg.name
   virtual_network_name = azurerm_virtual_network.main_vnet.name
-  address_prefixes     = ["10.3.0.0/16"]
+  address_prefixes     = var.admin_subnet_address_prefixes
 }
