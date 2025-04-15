@@ -1,18 +1,22 @@
-name: Terraform Plan
+name: Terraform Apply
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
+    types: [closed]
     branches:
       - main
 
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 jobs:
-  backend-plan:
-    name: Plan - backend
+  backend-apply:
+    name: Apply - backend
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,25 +26,25 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      ARM_USE_CLI: false
     steps:
       - uses: actions/checkout@v3
-      - uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
-      - run: terraform init
-      - run: terraform validate
-      - name: Run tflint
-        run: tflint
-      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
-      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
-  network-plan:
-    name: Plan - network
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+  network-apply:
+    name: Apply - network
+    needs: backend-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,25 +54,25 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      ARM_USE_CLI: false
     steps:
       - uses: actions/checkout@v3
-      - uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
-      - run: terraform init
-      - run: terraform validate
-      - name: Run tflint
-        run: tflint
-      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
-      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
-  aks-plan:
-    name: Plan - aks
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+  aks-apply:
+    name: Apply - aks
+    needs: network-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -78,25 +82,25 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      ARM_USE_CLI: false
     steps:
       - uses: actions/checkout@v3
-      - uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
-      - run: terraform init
-      - run: terraform validate
-      - name: Run tflint
-        run: tflint
-      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
-      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
 
-  weather-app-plan:
-    name: Plan - weather-app
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+  weather-app-apply:
+    name: Apply - weather-app
+    needs: aks-apply
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -106,19 +110,17 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
+      ARM_USE_CLI: false
     steps:
       - uses: actions/checkout@v3
-      - uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
-      - run: terraform init
-      - run: terraform validate
-      - name: Run tflint
-        run: tflint
-      - run: terraform plan -var="location=canadacentral" -out=tfplan.out
-      - run: terraform show -no-color tfplan.out >> $GITHUB_STEP_SUMMARY
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
